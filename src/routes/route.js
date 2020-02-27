@@ -16,20 +16,23 @@ router.post("/document", upload.single("file"), function(req, res) {
     // lenna
     //   .resize(256, 256)
     //   let filelocation;
-    lenna.greyscale((err, pic) => {
+    lenna.greyscale(async (err, pic) => {
       if (err) throw err;
-      console.log(pic)
-      uploadConnector
-        .uploadFile(pic.bitmap.data, `upload/newpicture1030.png`)
-        .then(response => {
-          console.log("<<Uploaded file to S3>>");
-          filelocation = response.Location;
-          res.status(200).send({ filelocation });
-        })
-        .catch(err => {
-          console.log(err);
-          res.status(400).send("Error");
-        });
+      console.log(pic);
+
+      pic.getBuffer(Jimp.MIME_PNG, (err, buffer) => {
+        uploadConnector
+          .uploadFile(buffer, `upload/newpicture103.png`)
+          .then(response => {
+            console.log("<<Uploaded file to S3>>");
+            let filelocation = response.Location;
+            res.status(200).send({ filelocation });
+          })
+          .catch(err => {
+            console.log(err);
+            res.status(400).send("Error");
+          });
+      });
     });
   });
 });
