@@ -1,7 +1,8 @@
 // 'use strict'
-import express from "express";
-import multer from "multer";
-import { uploadConnector } from '../connectors';
+const express = require("express");
+const multer = require("multer");
+// import { uploadConnector } from '../connectors';
+const uploadConnector = require("../connectors/aws_s3")
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ var upload = multer({ storage: storage });
 router.post("/document", upload.single("file"), function(req, res) {
     const file = req.file;
     let filelocation;
-    uploadConnector.uploadFile(file.buffer, file.originalname)
+    uploadConnector.uploadFile(file.buffer, `upload/${file.originalname}`)
     .then((response) => {
         console.log("<<Uploaded file to S3>>")
         console.log(response);

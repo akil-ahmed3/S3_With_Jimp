@@ -1,4 +1,5 @@
-import AWS from 'aws-sdk';
+const AWS = require('aws-sdk');
+const Jimp = require('jimp')
 require('dotenv').config()
 
 const credentials = {
@@ -21,7 +22,22 @@ exports.uploadFile = (data, fileName) => {
    if (extn == 'png' || extn == 'jpg' || extn == 'jpeg' || extn == 'gif') 
      contentType = "image/" + extn;
    console.log(contentType);
-   return new Promise((resolve, reject) => {
+   return new Promise((resolve, reject) => {require('dotenv').config()
+   const express = require("express");
+   const http = require('http');
+   const bodyParser = require('body-parser');
+   const routes = require("./routes/route");
+   
+   const app = express();
+   app.use(bodyParser.json());
+   //Define context root and mount the routes
+   app.use("/api", routes);
+   
+   const port = process.env.NODE_PORT || 4000;
+   http.createServer(app)
+   .listen(port, function(){
+     console.log('Server running locally on port ', port);
+   })
       s3client.upload(
          {
             Bucket: bucketName,
