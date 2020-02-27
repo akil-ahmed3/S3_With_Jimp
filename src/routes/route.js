@@ -1,33 +1,37 @@
 // 'use strict'
 const express = require("express");
 const multer = require("multer");
-// import { uploadConnector } from '../connectors';
-const uploadConnector = require("../connectors/aws_s3")
+const uploadConnector = require("../connectors/aws_s3");
+const Jimp = require("jimp");
 
 const router = express.Router();
-
-//Middleware for handling multipart/form-data for uploading files
-// Multer provides memory and disk storage engine. We are using
-// memory storage which stores the files in memory as Buffer objects 
 var storage = multer.memoryStorage();
 var upload = multer({ storage: storage });
 
-// upload.single("file") - file is the name in the form-data request
 router.post("/document", upload.single("file"), function(req, res) {
-    const file = req.file;
-    let filelocation;
-    uploadConnector.uploadFile(file.buffer, `upload/${file.originalname}`)
-    .then((response) => {
-        console.log("<<Uploaded file to S3>>")
-        console.log(response);
-        filelocation = response.Location;
-        //return { filelocation, filename, mimetype, encoding };
-        res.status(200).send({filelocation})
-    })
-    .catch((err) => {
-        console.log(err);
-        res.status(400).send('Error')
-    })
+  const file = req.file;
+
+  Jimp.read(file.buffer, (err, lenna) => {
+    if (err) throw err;
+    // lenna
+    //   .resize(256, 256)
+    //   let filelocation;
+    lenna.greyscale((err, pic) => {
+      if (err) throw err;
+      console.log(pic)
+      uploadConnector
+        .uploadFile(pic.bitmap.data, `upload/newpicture1030.png`)
+        .then(response => {
+          console.log("<<Uploaded file to S3>>");
+          filelocation = response.Location;
+          res.status(200).send({ filelocation });
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(400).send("Error");
+        });
+    });
+  });
 });
 
 module.exports = router;
